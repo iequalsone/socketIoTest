@@ -1,11 +1,15 @@
 import React, { useRef, useState, useEffect } from "react"
-import io from "socket.io-client"
+import io, { Socket } from "socket.io-client"
 
-const Male = ({ title }) => {
+const Male = ({ title }: { title: string }) => {
   const [jsonData, setJsonData] = useState(null)
-  const socket = useRef(null)
+  const socket = useRef<Socket | null>(null)
 
   useEffect(() => {
+    if (!socket) {
+      return
+    }
+
     socket.current = io("http://localhost:8080")
 
     socket.current.on("connect", () => {
@@ -19,13 +23,13 @@ const Male = ({ title }) => {
 
     return () => {
       console.log("Disconnected")
-      socket.current.disconnect()
+      socket.current?.disconnect()
     }
   }, [])
 
   const handleProcessing = () => {
     console.log("Emitting event")
-    socket.current.emit("jsonProcessed")
+    socket.current?.emit("jsonProcessed")
     setJsonData(null)
   }
 
